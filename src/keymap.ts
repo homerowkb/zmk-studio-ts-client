@@ -417,6 +417,45 @@ export function setActivePhysicalLayoutErrorCodeToJSON(object: SetActivePhysical
   }
 }
 
+export enum CloneLayerErrorCode {
+  CLONE_LAYER_ERR_OK = 0,
+  CLONE_LAYER_ERR_GENERIC = 1,
+  CLONE_LAYER_ERR_INVALID_LAYER = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function cloneLayerErrorCodeFromJSON(object: any): CloneLayerErrorCode {
+  switch (object) {
+    case 0:
+    case "CLONE_LAYER_ERR_OK":
+      return CloneLayerErrorCode.CLONE_LAYER_ERR_OK;
+    case 1:
+    case "CLONE_LAYER_ERR_GENERIC":
+      return CloneLayerErrorCode.CLONE_LAYER_ERR_GENERIC;
+    case 2:
+    case "CLONE_LAYER_ERR_INVALID_LAYER":
+      return CloneLayerErrorCode.CLONE_LAYER_ERR_INVALID_LAYER;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return CloneLayerErrorCode.UNRECOGNIZED;
+  }
+}
+
+export function cloneLayerErrorCodeToJSON(object: CloneLayerErrorCode): string {
+  switch (object) {
+    case CloneLayerErrorCode.CLONE_LAYER_ERR_OK:
+      return "CLONE_LAYER_ERR_OK";
+    case CloneLayerErrorCode.CLONE_LAYER_ERR_GENERIC:
+      return "CLONE_LAYER_ERR_GENERIC";
+    case CloneLayerErrorCode.CLONE_LAYER_ERR_INVALID_LAYER:
+      return "CLONE_LAYER_ERR_INVALID_LAYER";
+    case CloneLayerErrorCode.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface Request {
   getKeymap?: boolean | undefined;
   setLayerBinding?: SetLayerBindingRequest | undefined;
@@ -436,6 +475,7 @@ export interface Request {
   profilePrev?: boolean | undefined;
   profileSelect?: number | undefined;
   cloneProfile?: CloneProfileRequest | undefined;
+  cloneLayer?: CloneLayerRequest | undefined;
 }
 
 export interface Response {
@@ -457,6 +497,7 @@ export interface Response {
   profilePrev?: SetProfileResponse | undefined;
   profileSelect?: SetProfileResponse | undefined;
   cloneProfile?: CloneProfileResponse | undefined;
+  cloneLayer?: CloneLayerResponse | undefined;
 }
 
 export interface Notification {
@@ -520,6 +561,16 @@ export interface SetLayerBindingRequest {
   layerId: number;
   keyPosition: number;
   binding: BehaviorBinding | undefined;
+}
+
+export interface CloneLayerRequest {
+  sourceLayer: number;
+  destLayer: number;
+}
+
+export interface CloneLayerResponse {
+  ok?: boolean | undefined;
+  err?: CloneLayerErrorCode | undefined;
 }
 
 export interface MoveLayerRequest {
@@ -602,6 +653,7 @@ function createBaseRequest(): Request {
     profilePrev: undefined,
     profileSelect: undefined,
     cloneProfile: undefined,
+    cloneLayer: undefined,
   };
 }
 
@@ -660,6 +712,9 @@ export const Request = {
     }
     if (message.cloneProfile !== undefined) {
       CloneProfileRequest.encode(message.cloneProfile, writer.uint32(146).fork()).ldelim();
+    }
+    if (message.cloneLayer !== undefined) {
+      CloneLayerRequest.encode(message.cloneLayer, writer.uint32(154).fork()).ldelim();
     }
     return writer;
   },
@@ -797,6 +852,13 @@ export const Request = {
 
           message.cloneProfile = CloneProfileRequest.decode(reader, reader.uint32());
           continue;
+        case 19:
+          if (tag !== 154) {
+            break;
+          }
+
+          message.cloneLayer = CloneLayerRequest.decode(reader, reader.uint32());
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -832,6 +894,7 @@ export const Request = {
       profilePrev: isSet(object.profilePrev) ? globalThis.Boolean(object.profilePrev) : undefined,
       profileSelect: isSet(object.profileSelect) ? globalThis.Number(object.profileSelect) : undefined,
       cloneProfile: isSet(object.cloneProfile) ? CloneProfileRequest.fromJSON(object.cloneProfile) : undefined,
+      cloneLayer: isSet(object.cloneLayer) ? CloneLayerRequest.fromJSON(object.cloneLayer) : undefined,
     };
   },
 
@@ -891,6 +954,9 @@ export const Request = {
     if (message.cloneProfile !== undefined) {
       obj.cloneProfile = CloneProfileRequest.toJSON(message.cloneProfile);
     }
+    if (message.cloneLayer !== undefined) {
+      obj.cloneLayer = CloneLayerRequest.toJSON(message.cloneLayer);
+    }
     return obj;
   },
 
@@ -931,6 +997,9 @@ export const Request = {
     message.cloneProfile = (object.cloneProfile !== undefined && object.cloneProfile !== null)
       ? CloneProfileRequest.fromPartial(object.cloneProfile)
       : undefined;
+    message.cloneLayer = (object.cloneLayer !== undefined && object.cloneLayer !== null)
+      ? CloneLayerRequest.fromPartial(object.cloneLayer)
+      : undefined;
     return message;
   },
 };
@@ -955,6 +1024,7 @@ function createBaseResponse(): Response {
     profilePrev: undefined,
     profileSelect: undefined,
     cloneProfile: undefined,
+    cloneLayer: undefined,
   };
 }
 
@@ -1013,6 +1083,9 @@ export const Response = {
     }
     if (message.cloneProfile !== undefined) {
       CloneProfileResponse.encode(message.cloneProfile, writer.uint32(146).fork()).ldelim();
+    }
+    if (message.cloneLayer !== undefined) {
+      CloneLayerResponse.encode(message.cloneLayer, writer.uint32(154).fork()).ldelim();
     }
     return writer;
   },
@@ -1150,6 +1223,13 @@ export const Response = {
 
           message.cloneProfile = CloneProfileResponse.decode(reader, reader.uint32());
           continue;
+        case 19:
+          if (tag !== 154) {
+            break;
+          }
+
+          message.cloneLayer = CloneLayerResponse.decode(reader, reader.uint32());
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1187,6 +1267,7 @@ export const Response = {
       profilePrev: isSet(object.profilePrev) ? SetProfileResponse.fromJSON(object.profilePrev) : undefined,
       profileSelect: isSet(object.profileSelect) ? SetProfileResponse.fromJSON(object.profileSelect) : undefined,
       cloneProfile: isSet(object.cloneProfile) ? CloneProfileResponse.fromJSON(object.cloneProfile) : undefined,
+      cloneLayer: isSet(object.cloneLayer) ? CloneLayerResponse.fromJSON(object.cloneLayer) : undefined,
     };
   },
 
@@ -1246,6 +1327,9 @@ export const Response = {
     if (message.cloneProfile !== undefined) {
       obj.cloneProfile = CloneProfileResponse.toJSON(message.cloneProfile);
     }
+    if (message.cloneLayer !== undefined) {
+      obj.cloneLayer = CloneLayerResponse.toJSON(message.cloneLayer);
+    }
     return obj;
   },
 
@@ -1296,6 +1380,9 @@ export const Response = {
       : undefined;
     message.cloneProfile = (object.cloneProfile !== undefined && object.cloneProfile !== null)
       ? CloneProfileResponse.fromPartial(object.cloneProfile)
+      : undefined;
+    message.cloneLayer = (object.cloneLayer !== undefined && object.cloneLayer !== null)
+      ? CloneLayerResponse.fromPartial(object.cloneLayer)
       : undefined;
     return message;
   },
@@ -2236,6 +2323,154 @@ export const SetLayerBindingRequest = {
     message.binding = (object.binding !== undefined && object.binding !== null)
       ? BehaviorBinding.fromPartial(object.binding)
       : undefined;
+    return message;
+  },
+};
+
+function createBaseCloneLayerRequest(): CloneLayerRequest {
+  return { sourceLayer: 0, destLayer: 0 };
+}
+
+export const CloneLayerRequest = {
+  encode(message: CloneLayerRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.sourceLayer !== 0) {
+      writer.uint32(8).uint32(message.sourceLayer);
+    }
+    if (message.destLayer !== 0) {
+      writer.uint32(16).uint32(message.destLayer);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): CloneLayerRequest {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCloneLayerRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 8) {
+            break;
+          }
+
+          message.sourceLayer = reader.uint32();
+          continue;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.destLayer = reader.uint32();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CloneLayerRequest {
+    return {
+      sourceLayer: isSet(object.sourceLayer) ? globalThis.Number(object.sourceLayer) : 0,
+      destLayer: isSet(object.destLayer) ? globalThis.Number(object.destLayer) : 0,
+    };
+  },
+
+  toJSON(message: CloneLayerRequest): unknown {
+    const obj: any = {};
+    if (message.sourceLayer !== 0) {
+      obj.sourceLayer = Math.round(message.sourceLayer);
+    }
+    if (message.destLayer !== 0) {
+      obj.destLayer = Math.round(message.destLayer);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CloneLayerRequest>, I>>(base?: I): CloneLayerRequest {
+    return CloneLayerRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CloneLayerRequest>, I>>(object: I): CloneLayerRequest {
+    const message = createBaseCloneLayerRequest();
+    message.sourceLayer = object.sourceLayer ?? 0;
+    message.destLayer = object.destLayer ?? 0;
+    return message;
+  },
+};
+
+function createBaseCloneLayerResponse(): CloneLayerResponse {
+  return { ok: undefined, err: undefined };
+}
+
+export const CloneLayerResponse = {
+  encode(message: CloneLayerResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.ok !== undefined) {
+      writer.uint32(8).bool(message.ok);
+    }
+    if (message.err !== undefined) {
+      writer.uint32(16).int32(message.err);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): CloneLayerResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCloneLayerResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 8) {
+            break;
+          }
+
+          message.ok = reader.bool();
+          continue;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.err = reader.int32() as any;
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CloneLayerResponse {
+    return {
+      ok: isSet(object.ok) ? globalThis.Boolean(object.ok) : undefined,
+      err: isSet(object.err) ? cloneLayerErrorCodeFromJSON(object.err) : undefined,
+    };
+  },
+
+  toJSON(message: CloneLayerResponse): unknown {
+    const obj: any = {};
+    if (message.ok !== undefined) {
+      obj.ok = message.ok;
+    }
+    if (message.err !== undefined) {
+      obj.err = cloneLayerErrorCodeToJSON(message.err);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CloneLayerResponse>, I>>(base?: I): CloneLayerResponse {
+    return CloneLayerResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CloneLayerResponse>, I>>(object: I): CloneLayerResponse {
+    const message = createBaseCloneLayerResponse();
+    message.ok = object.ok ?? undefined;
+    message.err = object.err ?? undefined;
     return message;
   },
 };
